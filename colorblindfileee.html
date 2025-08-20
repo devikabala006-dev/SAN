@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>ColorMate – Color Blindness Simulator</title>
+    <style>
+         :root {
+            --bg: #ffffff;
+            --text: #222222;
+            --panel-bg: rgba(255, 255, 255, 0.8);
+            --btn-bg: #f7f7f7;
+            --btn-hover: #eeeeee;
+        }
+        
+        [data-theme="dark"] {
+            --bg: #1a1a1a;
+            --text: #dddddd;
+            --panel-bg: rgba(0, 0, 0, 0.6);
+            --btn-bg: #333333;
+            --btn-hover: #444444;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            transition: background-color 0.3s, color 0.3s;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        a {
+            color: var(--text);
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        header {
+            background: var(--panel-bg);
+            border-bottom: 1px solid #888;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+        
+        .logo .circle {
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(to right, #f4a261, #264653);
+            border-radius: 50%;
+        }
+        
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 1rem;
+        }
+        
+        nav ul li {
+            position: relative;
+        }
+        
+        nav ul li a {
+            padding: 0.4rem 0.8rem;
+            display: block;
+        }
+        
+        nav ul li:hover {
+            background: var(--btn-hover);
+            border-radius: 4px;
+        }
+        
+        nav ul li ul {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: var(--panel-bg);
+            border: 1px solid #888;
+            border-radius: 4px;
+            list-style: none;
+            padding: 0.4rem 0;
+            min-width: 160px;
+            z-index: 10;
+        }
+        
+        nav ul li:hover>ul {
+            display: block;
+        }
+        
+        nav ul li ul li:hover {
+            background: var(--btn-hover);
+        }
+        
+        .theme-toggle {
+            cursor: pointer;
+            background: var(--btn-bg);
+            border: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .landing {
+            text-align: center;
+            padding: 4rem 1rem;
+            background: url('d:\New folder\blind.jpeg') center/cover no-repeat;
+            color: #fff;
+            flex: 1;
+            position: relative;
+        }
+        
+        .landing::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 0;
+        }
+        
+        .landing-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .landing h1 {
+            font-size: 2.8rem;
+            margin-bottom: 1rem;
+        }
+        
+        .landing h1 span {
+            color: #ffd166;
+        }
+        
+        .landing button {
+            margin-top: 1.5rem;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            background: #06d6a0;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .landing button:hover {
+            background: #04b68c;
+        }
+        
+        .banner {
+            margin: 2rem auto;
+            width: 90%;
+            max-width: 1000px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        /* Simulator Background */
+        
+        main.simulator {
+            display: none;
+            position: relative;
+            flex: 1;
+            max-width: 100%;
+            background: url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d') center/cover no-repeat;
+            padding: 4rem 2rem;
+            min-height: 100vh;
+        }
+        
+        main.simulator::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 0;
+        }
+        
+        main.simulator>* {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .simulator .controls,
+        .simulator section,
+        .simulator #workArea {
+            background: var(--panel-bg);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            backdrop-filter: blur(5px);
+        }
+        
+        .controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 0.6rem 1.2rem;
+            border: 1px solid #888;
+            background: var(--btn-bg);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        button:hover {
+            background: var(--btn-hover);
+        }
+        
+        section {
+            display: none;
+        }
+        
+        .canvas-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .canvas-container canvas {
+            max-width: 48%;
+            border: 1px solid #aaa;
+            border-radius: 4px;
+        }
+        
+        #aboutSection img {
+            max-width: 100%;
+            border-radius: 4px;
+            margin: 0.5rem 0;
+        }
+        
+        #contactSection form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            max-width: 400px;
+        }
+        
+        footer {
+            text-align: center;
+            margin: 2rem 0;
+        }
+        /* Loading Spinner */
+        
+        #loadingOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            color: white;
+            font-size: 1.5rem;
+            display: none;
+            flex-direction: column;
+        }
+        
+        .spinner {
+            border: 6px solid #ccc;
+            border-top: 6px solid #06d6a0;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <div class="circle"></div>
+            ColorMate
+        </div>
+        <nav>
+            <ul>
+                <li><a id="homeLink">Home</a></li>
+                <li>
+                    <a>Tests ▾</a>
+                    <ul>
+                        <li><a id="colorTestLink">Colorblindness Test</a></li>
+                    </ul>
+                </li>
+                <li><a id="toolsLink">Tools</a></li>
+                <li><a id="contactLink">Contact</a></li>
+            </ul>
+        </nav>
+        <button class="theme-toggle" id="themeToggle">Toggle Dark/Light</button>
+    </header>
+
+    <!-- Landing -->
+    <div class="landing" id="landingSection">
+        <div class="landing-content">
+            <h1>See the world through <br><span>different eyes</span></h1>
+            <button onclick="startSimulator()">Try Now</button>
+            <div class="banner"></div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay">
+        <div class="spinner"></div>
+        Loading Simulator...
+    </div>
+
+    <!-- Simulator -->
+    <main class="simulator" id="simulatorMain">
+        <div class="controls">
+            <button id="uploadBtn">Upload Image</button>
+            <button id="colorFilterBtn">Color Filter</button>
+            <button id="aboutBtn">About Color Blindness</button>
+            <button id="runTestBtn" style="display:none;">Start Colorblindness Test</button>
+        </div>
+        <input type="file" id="imageInput" accept="image/*" style="display:none">
+        <div id="workArea" class="canvas-container"></div>
+        <section id="filterSection">
+            <h2>Choose a Filter</h2>
+            <button data-filter="protanopia">Protanopia</button>
+            <button data-filter="deuteranopia">Deuteranopia</button>
+            <button data-filter="tritanopia">Tritanopia</button>
+        </section>
+        <section id="aboutSection">
+            <h2>About Color Blindness</h2>
+            <p>Color blindness affects how people perceive colors...</p>
+        </section>
+        <section id="contactSection">
+            <h2>Contact Us</h2>
+            <form id="contactForm">
+                <label>Name</label>
+                <input type="text" required>
+                <label>Phone</label>
+                <input type="tel" required>
+                <label>Email</label>
+                <input type="email" required>
+                <button type="submit">Send</button>
+            </form>
+            <div id="contactMsg" style="display:none;margin-top:1rem;">Thanks for contacting us!</div>
+        </section>
+        <section id="colorTestSection">
+            <h2>Colorblindness Test</h2>
+            <p>[Test content goes here]</p>
+        </section>
+    </main>
+
+    <footer>&copy; 2025 ColorMate</footer>
+
+    <script>
+        const html = document.documentElement;
+        const storedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        html.setAttribute('data-theme', storedTheme);
+        const themeToggle = document.getElementById('themeToggle');
+        themeToggle.textContent = storedTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+        themeToggle.addEventListener('click', () => {
+            const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            themeToggle.textContent = next === 'dark' ? 'Light Mode' : 'Dark Mode';
+        });
+
+        function startSimulator() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            setTimeout(() => {
+                document.getElementById('landingSection').style.display = 'none';
+                document.getElementById('simulatorMain').style.display = 'block';
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }, 1500);
+        }
+
+        const uploadBtn = document.getElementById('uploadBtn');
+        const colorFilterBtn = document.getElementById('colorFilterBtn');
+        const aboutBtn = document.getElementById('aboutBtn');
+        const runTestBtn = document.getElementById('runTestBtn');
+        const imageInput = document.getElementById('imageInput');
+        const workArea = document.getElementById('workArea');
+        const filterSection = document.getElementById('filterSection');
+        const aboutSection = document.getElementById('aboutSection');
+        const contactSection = document.getElementById('contactSection');
+        const colorTestSection = document.getElementById('colorTestSection');
+        const contactLink = document.getElementById('contactLink');
+        const colorTestLink = document.getElementById('colorTestLink');
+        const contactForm = document.getElementById('contactForm');
+        const contactMsg = document.getElementById('contactMsg');
+
+        function hideAllSections() {
+            filterSection.style.display = 'none';
+            aboutSection.style.display = 'none';
+            contactSection.style.display = 'none';
+            colorTestSection.style.display = 'none';
+            runTestBtn.style.display = 'none';
+        }
+
+        function toggleSection(section) {
+            const isHidden = section.style.display !== 'block';
+            hideAllSections();
+            section.style.display = isHidden ? 'block' : 'none';
+        }
+
+        uploadBtn.addEventListener('click', () => imageInput.click());
+        imageInput.addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = ev => {
+                const img = new Image();
+                img.onload = () => {
+                    workArea.innerHTML = '';
+                    ['original', 'filtered'].forEach(id => {
+                        const c = document.createElement('canvas');
+                        c.id = id + 'Canvas';
+                        c.width = img.width;
+                        c.height = img.height;
+                        workArea.appendChild(c);
+                    });
+                    document.getElementById('originalCanvas').getContext('2d').drawImage(img, 0, 0);
+                };
+                img.src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        colorFilterBtn.addEventListener('click', () => toggleSection(filterSection));
+        aboutBtn.addEventListener('click', () => toggleSection(aboutSection));
+        contactLink.addEventListener('click', () => toggleSection(contactSection));
+        colorTestLink.addEventListener('click', () => {
+            toggleSection(colorTestSection);
+            runTestBtn.style.display = 'inline-block';
+        });
+        runTestBtn.addEventListener('click', () => toggleSection(colorTestSection));
+        filterSection.addEventListener('click', e => {
+            if (e.target.tagName === 'BUTTON') applyFilter(e.target.dataset.filter);
+        });
+        contactForm.addEventListener('submit', e => {
+            e.preventDefault();
+            hideAllSections();
+            contactMsg.style.display = 'block';
+            contactForm.reset();
+        });
+
+        function applyFilter(type) {
+            const orig = document.getElementById('originalCanvas');
+            const filt = document.getElementById('filteredCanvas');
+            if (!orig || !filt) return alert('Upload an image first.');
+            const w = orig.width,
+                h = orig.height;
+            const ctxO = orig.getContext('2d'),
+                ctxF = filt.getContext('2d');
+            const img = ctxO.getImageData(0, 0, w, h),
+                data = img.data;
+            for (let i = 0; i < data.length; i += 4) {
+                let r = data[i],
+                    g = data[i + 1],
+                    b = data[i + 2];
+                if (type === 'protanopia') r = g = b = (r + g + b) / 3;
+                if (type === 'deuteranopia') g = r;
+                if (type === 'tritanopia') b = g;
+                data[i] = r;
+                data[i + 1] = g;
+                data[i + 2] = b;
+            }
+            ctxF.putImageData(img, 0, 0);
+        }
+
+        hideAllSections();
+    </script>
+</body>
+
+</html>
