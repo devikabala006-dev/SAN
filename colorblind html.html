@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ColorMate – Color Blindness Simulator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 1rem;
+        }
+        
+        header h1 {
+            margin-bottom: 0.2rem;
+        }
+        
+        .controls {
+            margin: 1rem 0;
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        #aboutSection,
+        #filterSection {
+            display: none;
+            margin-top: 1rem;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        
+        #workArea {
+            margin-top: 1rem;
+        }
+        
+        canvas {
+            max-width: 100%;
+            border: 1px solid #aaa;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Welcome to ColorMate!</h1>
+        <p>Your interactive color blindness simulator.</p>
+    </header>
+
+    <div class="controls">
+        <button id="uploadBtn">Upload Image</button>
+        <button id="colorFilterBtn">Color Filter</button>
+        <button id="aboutBtn">About Color Blindness</button>
+    </div>
+
+    <input type="file" id="imageInput" accept="image/*" style="display:none" />
+
+    <div id="workArea">
+        <!-- Canvas previews will go here -->
+    </div>
+
+    <section id="filterSection">
+        <h2>Select a Filter</h2>
+        <button data-filter="protanopia">Protanopia</button>
+        <button data-filter="deuteranopia">Deuteranopia</button>
+        <button data-filter="tritanopia">Tritanopia</button>
+    </section>
+
+    <section id="aboutSection">
+        <h2>About Color Blindness</h2>
+        <p>
+            Color blindness affects the way people perceive colors—commonly red‑green (protan/deutan) or blue‑yellow (tritan) deficiencies.
+        </p>
+    </section>
+
+    <script>
+        // Utility to toggle visibility
+        function toggleVisibility(el) {
+            el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        }
+
+        const uploadBtn = document.getElementById('uploadBtn');
+        const colorFilterBtn = document.getElementById('colorFilterBtn');
+        const aboutBtn = document.getElementById('aboutBtn');
+        const imageInput = document.getElementById('imageInput');
+        const workArea = document.getElementById('workArea');
+        const filterSection = document.getElementById('filterSection');
+        const aboutSection = document.getElementById('aboutSection');
+
+        // 1. Upload Image → trigger file input
+        uploadBtn.addEventListener('click', () => imageInput.click());
+
+        imageInput.addEventListener('change', event => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = e => {
+                const img = new Image();
+                img.onload = () => {
+                    workArea.innerHTML = ''; // Clear old
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    workArea.appendChild(canvas);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // 2. Color Filter section toggle
+        colorFilterBtn.addEventListener('click', () => {
+            toggleVisibility(filterSection);
+            aboutSection.style.display = 'none'; // hide other
+        });
+
+        // 3. About section toggle
+        aboutBtn.addEventListener('click', () => {
+            toggleVisibility(aboutSection);
+            filterSection.style.display = 'none';
+        });
+
+        // 4. Filter buttons (protan/deutan/tritan)
+        filterSection.addEventListener('click', e => {
+            if (e.target.tagName !== 'BUTTON') return; // only buttons
+            const filter = e.target.getAttribute('data-filter');
+            applyColorFilter(filter);
+        });
+
+        // Placeholder for actual filter functionality
+        function applyColorFilter(type) {
+            const canvas = workArea.querySelector('canvas');
+            if (!canvas) {
+                alert('Please upload an image first.');
+                return;
+            }
+            // You’ll implement image manipulation here based on `type`
+            console.log('Apply filter:', type);
+        }
+    </script>
+</body>
+
+</html>
